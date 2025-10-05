@@ -156,9 +156,11 @@ function LoginView({ onLogin }: { onLogin: (email: string) => void }) {
       <Card className="w-full max-w-md">
         <CardHeader>
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 grid place-items-center rounded-2xl bg-emerald-100">
-              <Sparkles className="h-5 w-5 text-emerald-700" />
-            </div>
+            <img
+  src="/B.B.L.png"
+  alt="Brooke's Bridal Lab Logo"
+  className="h-10 w-auto rounded-xl object-contain"
+/>
             <div>
               <CardTitle>Brooke's Bridal Lab ♡</CardTitle>
               <p className="text-sm text-black/60">Private bridesmaid portal</p>
