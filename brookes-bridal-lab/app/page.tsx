@@ -186,7 +186,7 @@ function LoginView({ onLogin }: { onLogin: (email: string) => void }) {
                 value={code}
                 onChange={(e: any) => setCode(e.target.value)}
               />
-              <p className="mt-1 text-xs text-black/50">Need help? Reply to Brooke’s invite email 💌</p>
+              <p className="mt-1 text-xs text-black/50">Need help? Reply to the invite email 💌</p>
             </div>
             {error && (
               <div className="text-sm text-red-600 bg-red-50 border border-red-200 p-2 rounded-xl">{error}</div>
@@ -209,14 +209,16 @@ function HeaderBar({ email, onLogout }: { email: string; onLogout: () => void })
     <div className="sticky top-0 z-50 backdrop-blur bg-white/70 border-b border-black/10">
       <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="h-9 w-9 grid place-items-center rounded-2xl bg-emerald-100">
-            <Sparkles className="h-4 w-4 text-emerald-700" />
-          </div>
-          <div>
-            <div className="text-sm font-semibold">Brooke's Bridal Lab ♡</div>
-            <div className="text-xs text-black/60">Signed in as {email}</div>
-          </div>
-        </div>
+  <img
+    src="/B.B.L (1).png"
+    alt="Brooke's Bridal Lab Logo"
+    className="h-10 w-auto rounded-xl object-contain"
+  />
+  <div>
+    <CardTitle>Brooke's Bridal Lab ♡</CardTitle>
+    <p className="text-sm text-black/60">Private bridesmaid portal</p>
+  </div>
+</div>
         <Button className="bg-black/90" onClick={onLogout}>
           <LogOut className="h-4 w-4" /> Sign out
         </Button>
