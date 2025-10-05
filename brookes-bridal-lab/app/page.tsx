@@ -384,25 +384,63 @@ function PicksCard({ profile, setProfile }: { profile: UserProfile; setProfile: 
 
 function ChatCard({ profile, setProfile }: { profile: UserProfile; setProfile: (p: UserProfile) => void }) {
   const [input, setInput] = useState("");
+  const [sending, setSending] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
   const listRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" });
-  }, [profile.chat.length]);
+  }, [profile.chat.length, sending]);
+
+  const appendMsg = (m: ChatMsg) => {
+    setProfile({ ...profile, chat: [...profile.chat, m] });
+  };
 
   const send = async () => {
-    if (!input.trim()) return;
-    const userMsg: ChatMsg = { role: "user", text: input.trim(), ts: Date.now() };
-    setProfile({ ...profile, chat: [...profile.chat, userMsg] });
+    if (!input.trim() || sending) return;
+    setErr(null);
+    const text = input.trim();
     setInput("");
-    // Placeholder assistant echo; replace with your chat backend.
-    const reply: ChatMsg = {
-      role: "assistant",
-      text:
-        "got it! I’ll use only the approved olive palette and your budget/size. want a mockup? say ‘mockup in forest olive, strapless, floor-length’ ✨",
-      ts: Date.now() + 200,
-    };
-    setTimeout(() => setProfile({ ...profile, chat: [...profile.chat, reply] }), 400);
+    const userMsg: ChatMsg = { role: "user", text, ts: Date.now() };
+    appendMsg(userMsg);
+    setSending(true);
+
+    // Try real AI chat via API route; fallback to local canned reply
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: [
+            { role: "system", content: "You are Bridesmaid Bestie, a supportive stylist. Keep replies concise and fun." },
+            ...profile.chat.map((m) => ({ role: m.role, content: m.text })),
+            { role: "user", content: text },
+          ],
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const replyText = data?.reply ?? "Got it! 💐";
+        appendMsg({ role: "assistant", text: replyText, ts: Date.now() });
+      } else {
+        // Fallback canned reply
+        appendMsg({
+          role: "assistant",
+          text: "got it! I’ll use only the approved olive palette and your budget/size. want a mockup? say ‘mockup in forest olive, strapless, floor-length’ ✨",
+          ts: Date.now(),
+        });
+      }
+    } catch (e: any) {
+      setErr("Chat service offline — showing local reply.");
+      appendMsg({
+        role: "assistant",
+        text: "got it! I’ll use only the approved olive palette and your budget/size. want a mockup? say ‘mockup in forest olive, strapless, floor-length’ ✨",
+        ts: Date.now(),
+      });
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -427,12 +465,26 @@ function ChatCard({ profile, setProfile }: { profile: UserProfile; setProfile: (
               </div>
             </div>
           ))}
+          {sending && (
+            <div className="flex justify-start">
+              <div className="max-w-[80%] rounded-2xl px-3 py-2 text-sm bg-black/5 text-black">
+                typing…
+              </div>
+            </div>
+          )}
         </div>
         <div className="mt-3 flex gap-2">
-          <Input value={input} onChange={(e: any) => setInput(e.target.value)} placeholder="ask for picks, mockups, or sizing help…" />
-          <Button onClick={send}>Send</Button>
+          <Input
+            value={input}
+            onChange={(e: any) => setInput(e.target.value)}
+            placeholder="ask for picks, mockups, or sizing help…"
+            onKeyDown={(e: any) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } }}
+            disabled={sending}
+          />
+          <Button onClick={send} disabled={sending}>{sending ? "Sending" : "Send"}</Button>
         </div>
-        <p className="text-xs text-black/50 mt-2">Note: This demo chat is local-only. In production, connect to the Bridal Lab GPT with your API route.</p>
+        {err && <p className="text-xs text-amber-700 mt-2">{err}</p>}
+        <p className="text-xs text-black/50 mt-2">Note: Uses live AI if configured; otherwise local demo reply.</p>
       </CardContent>
     </Card>
   );
