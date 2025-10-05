@@ -398,7 +398,7 @@ function ChatCard({ profile, setProfile }: { profile: UserProfile; setProfile: (
         "got it! I’ll use only the approved olive palette and your budget/size. want a mockup? say ‘mockup in forest olive, strapless, floor-length’ ✨",
       ts: Date.now() + 200,
     };
-    setTimeout(() => setProfile((p) => (p ? { ...p, chat: [...p.chat, reply] } : p)), 400);
+    setTimeout(() => setProfile({ ...profile, chat: [...profile.chat, reply] }), 400);
   };
 
   return (
