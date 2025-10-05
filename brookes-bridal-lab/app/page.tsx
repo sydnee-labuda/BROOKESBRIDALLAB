@@ -157,10 +157,10 @@ function LoginView({ onLogin }: { onLogin: (email: string) => void }) {
         <CardHeader>
           <div className="flex items-center gap-3">
             <img
-  src="/B.B.L (1).png"
-  alt="Brooke's Bridal Lab Logo"
-  className="h-10 w-auto rounded-xl object-contain"
-/>
+              src="/B.B.L (1).png"
+              alt="Brooke's Bridal Lab Logo"
+              className="h-10 w-auto rounded-xl object-contain"
+            />
             <div>
               <CardTitle>Brooke's Bridal Lab ♡</CardTitle>
               <p className="text-sm text-black/60">Private bridesmaid portal</p>
@@ -209,16 +209,16 @@ function HeaderBar({ email, onLogout }: { email: string; onLogout: () => void })
     <div className="sticky top-0 z-50 backdrop-blur bg-white/70 border-b border-black/10">
       <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
-  <img
-    src="/B.B.L (1).png"
-    alt="Brooke's Bridal Lab Logo"
-    className="h-10 w-auto rounded-xl object-contain"
-  />
-  <div>
-    <CardTitle>Brooke's Bridal Lab ♡</CardTitle>
-    <p className="text-sm text-black/60">Private bridesmaid portal</p>
-  </div>
-</div>
+          <img
+            src="/B.B.L (1).png"
+            alt="Brooke's Bridal Lab Logo"
+            className="h-10 w-auto rounded-xl object-contain"
+          />
+          <div>
+            <div className="text-sm font-semibold">Brooke's Bridal Lab ♡</div>
+            <div className="text-xs text-black/60">Signed in as {email}</div>
+          </div>
+        </div>
         <Button className="bg-black/90" onClick={onLogout}>
           <LogOut className="h-4 w-4" /> Sign out
         </Button>
@@ -535,10 +535,17 @@ function Dashboard({ email, onLogout }: { email: string; onLogout: () => void })
 
 export default function BridalLabPortal() {
   const [email, setEmail] = useState<string | null>(null);
+  const [showSplash, setShowSplash] = useState(true);
 
   useEffect(() => {
     const stored = sessionStorage.getItem("bbl-session-email");
     if (stored) setEmail(stored);
+  }, []);
+
+  // Splash auto-hide after 2s
+  useEffect(() => {
+    const timer = setTimeout(() => setShowSplash(false), 2000);
+    return () => clearTimeout(timer);
   }, []);
 
   const handleLogin = (e: string) => {
@@ -550,5 +557,68 @@ export default function BridalLabPortal() {
     setEmail(null);
   };
 
-  return email ? <Dashboard email={email} onLogout={handleLogout} /> : <LoginView onLogin={handleLogin} />;
+  return (
+    <div className="relative min-h-screen">
+      {/* Splash overlay with olive gradient + shimmer + Enter button */}
+      <AnimatePresence>
+        {showSplash && (
+          <motion.div
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8 }}
+            className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-gradient-to-b from-[#6A7758] via-[#666844] to-[#7E8C54]"
+          >
+            <motion.div
+              initial={{ scale: 0.92, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+              className="relative mb-4"
+            >
+              <img
+                src="/B.B.L (1).png"
+                alt="Brooke's Bridal Lab Logo"
+                className="h-32 w-auto rounded-2xl object-contain"
+              />
+              {/* shimmer overlay */}
+              <span className="pointer-events-none absolute inset-0 overflow-hidden rounded-2xl">
+                <span
+                  className="block h-full w-[200%] -skew-x-12 opacity-30"
+                  style={{
+                    background: "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.9) 40%, transparent 80%)",
+                    animation: "shimmer 1.8s ease-in-out infinite",
+                    transform: "translateX(-50%)",
+                  }}
+                />
+              </span>
+            </motion.div>
+
+            <motion.h1
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="text-2xl font-semibold text-white mb-6 drop-shadow"
+            >
+              Brooke's Bridal Lab ♡
+            </motion.h1>
+
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2 }}>
+              <Button onClick={() => setShowSplash(false)} className="bg-white text-black hover:bg-white/90">
+                Enter
+              </Button>
+            </motion.div>
+
+            <style jsx>{`
+              @keyframes shimmer {
+                0% { transform: translateX(-50%); }
+                100% { transform: translateX(50%); }
+              }
+            `}</style>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Main app */}
+      {!showSplash && (email ? <Dashboard email={email} onLogout={handleLogout} /> : <LoginView onLogin={handleLogin} />)}
+    </div>
+  );
 }
