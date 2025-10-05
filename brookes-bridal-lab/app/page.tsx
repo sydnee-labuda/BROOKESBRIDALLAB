@@ -157,7 +157,7 @@ function LoginView({ onLogin }: { onLogin: (email: string) => void }) {
         <CardHeader>
           <div className="flex items-center gap-3">
             <img
-  src="/B.B.L.png"
+  src="/B.B.L (1).png"
   alt="Brooke's Bridal Lab Logo"
   className="h-10 w-auto rounded-xl object-contain"
 />
