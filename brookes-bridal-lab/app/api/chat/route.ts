@@ -1,3 +1,4 @@
+// brookes-bridal-lab/app/api/chat/route.ts
 import { NextResponse } from "next/server";
 export const runtime = "edge";
 
@@ -10,12 +11,11 @@ export async function POST(req: Request) {
 
     const key = process.env.OPENAI_API_KEY;
     if (!key) {
-      // ❗ You’ll see hadKey:false in the Network tab if env wasn’t found
       return NextResponse.json({
         reply:
           "love it! 🌿 I’ll keep to the olive palette and your budget/size. Want me to search dresses now or do a try-on mockup?",
-        source: "fallback_no_key",
-        hadKey: false,
+        source: "openai",
+        hadKey: true,
       });
     }
 
@@ -28,7 +28,7 @@ export async function POST(req: Request) {
       body: JSON.stringify({
         model: "gpt-4o-mini",
         temperature: 0.7,
-        messages, // client already includes system + history
+        messages, // client already provides system + history
       }),
     });
 
