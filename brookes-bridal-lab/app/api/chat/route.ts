@@ -11,7 +11,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
     }
 
-    const key = process.env.OPENAI_API_KEY;
+    const key = process.env.OPENAI_API_KEY;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
     if (!key) {
       // graceful fallback if no key set
       return NextResponse.json({
